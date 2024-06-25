@@ -23,6 +23,14 @@ const Form = () => {
     setDuration(+event.target.value);
   }
 
+  const resetHandler = () => {
+    setYearly([]);
+    setCurrentSavings('');
+    setDuration('');
+    setExpectedReturn('');
+    setYearlyContribution('');
+  }
+
   const calculateHandler = (e) => {
     e.preventDefault();
 
@@ -72,7 +80,7 @@ const Form = () => {
           </p>
         </div>
         <p className="actions">
-          <button type="reset" className="buttonAlt">
+          <button type="reset" className="buttonAlt" onClick={resetHandler}>
             Reset
           </button>
           <button type="submit" className="button">
