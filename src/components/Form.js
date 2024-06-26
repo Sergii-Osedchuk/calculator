@@ -1,27 +1,26 @@
 import { useState } from 'react';
 
 const Form = () => {
-  let [ currentSavings, setCurrentSavings ] = useState('');
-  const [ yearlyContribution, setYearlyContribution ] = useState('');
-  const [ expectedReturn, setExpectedReturn ] = useState('');
-  const [ duration, setDuration ] = useState('');
+  let [ currentSavings, setCurrentSavings ] = useState();
+  const [ yearlyContribution, setYearlyContribution ] = useState();
+  const [ expectedReturn, setExpectedReturn ] = useState();
+  const [ duration, setDuration ] = useState();
+
   const [ yearly, setYearly ] = useState([]);
 
-  const inputSavingHandler = (event) => {
-    setCurrentSavings(+event.target.value);
-  }
+  const formatter = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
 
-  const inputContributionHandler = (event) => {
-    setYearlyContribution(+event.target.value);
-  }
-
-  const expectedReturnHandler = (event) => {
-    setExpectedReturn(+event.target.value/100);
-  }
-
-  const inputDurationHandler = (event) => {
-    setDuration(+event.target.value);
-  }
+  const inputChangeHandler = (input, value) => {
+      input === 'savings' && setCurrentSavings(+value);
+      input === 'return' && setExpectedReturn(+value);
+      input === 'contribution' && setYearlyContribution(+value);
+      input === 'duration' && setDuration(+value);
+    }
 
   const resetHandler = () => {
     setYearly([]);
@@ -38,9 +37,9 @@ const Form = () => {
     let totalCapital = 0;
 
     for (let i = 0; i < duration; i++) {
-      const yearlyInterest = Math.round(currentSavings * expectedReturn);
+      const yearlyInterest = currentSavings * expectedReturn / 100;
       currentSavings += yearlyInterest + yearlyContribution;
-      totalCapital += currentSavings;
+      totalCapital = currentSavings + yearlyContribution * i;
 
       yearlyData.push({
         year: i + 1,
@@ -60,11 +59,23 @@ const Form = () => {
         <div className="input-group">
           <p>
             <label htmlFor="current-savings">Current Savings ($)</label>
-            <input type="number" id="current-savings" onChange={inputSavingHandler}/>
+            <input 
+              type="number" 
+              id="current-savings" 
+              onChange={(event) => 
+                inputChangeHandler('savings', event.target.value, )}
+              value = {currentSavings}
+            />
           </p>
           <p>
             <label htmlFor="yearly-contribution">Yearly Savings ($)</label>
-            <input type="number" id="yearly-contribution" onChange={inputContributionHandler}/>
+            <input 
+              type="number" 
+              id="yearly-contribution" 
+              onChange={(event) => 
+                inputChangeHandler('contribution', event.target.value, )}
+              value = {yearlyContribution}
+            />
           </p>
         </div>
         <div className="input-group">
@@ -72,11 +83,23 @@ const Form = () => {
             <label htmlFor="expected-return">
               Expected Interest (%, per year)
             </label>
-            <input type="number" id="expected-return" onChange={expectedReturnHandler}/>
+            <input 
+              type="number" 
+              id="expected-return" 
+              onChange={(event) => 
+              inputChangeHandler('return', event.target.value, )}
+              value = {expectedReturn}
+            />
           </p>
           <p>
             <label htmlFor="duration">Investment Duration (years)</label>
-            <input type="number" id="duration" onChange={inputDurationHandler}/>
+            <input 
+              type="number" 
+              id="duration" 
+              onChange={(event) => 
+              inputChangeHandler('duration', event.target.value, )}
+              value = {duration}
+            />
           </p>
         </div>
         <p className="actions">
@@ -101,13 +124,13 @@ const Form = () => {
         <tbody>
           {yearly.map(dataItem => <tr key={dataItem.year}>
             <td>{dataItem.year}</td>
-            <td>{dataItem.savingsEndOfYear}</td>
-            <td>{dataItem.yearlyContribution}</td>
-            <td>{dataItem.yearlyInterest}</td>
-            <td>{dataItem.totalCapital}</td>
+            <td>{formatter.format(dataItem.savingsEndOfYear)}</td>
+            <td>{formatter.format(dataItem.yearlyInterest)}</td>
+            <td>{formatter.format(dataItem.savingsEndOfYear - currentSavings - dataItem.yearlyContribution * dataItem.year)}</td>
+            <td>{formatter.format(dataItem.totalCapital)}</td>
           </tr>)}
         </tbody>
-      </table>) : <p style={{color: 'yellow', textAlign: 'center'}}>There is no data vailable</p>}
+      </table>) : <p style={{color: 'yellow', textAlign: 'center', fontSize: '12px'}}>There is no data vailable</p>}
     </>
   )
 }
